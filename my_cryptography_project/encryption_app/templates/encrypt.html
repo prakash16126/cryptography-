@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Encrypt a File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        a {
+            display: block;
+            margin: 10px 0;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form input, form button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        form button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Encrypt a File</h1>
+    <form id="encryptForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" id="encryptFile">
+        <button type="button" onclick="encryptFile()">Encrypt</button>
+    </form>
+    <p id="encryptionKey" style="display:none;">Encryption Key: <span></span></p>
+    <a id="encryptedFileLink" href="#" style="display:none;">Download Encrypted File</a>
+
+    <script>
+        function encryptFile() {
+            const file = document.getElementById('encryptFile').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+
+                // Generate a random key
+                const key = CryptoJS.lib.WordArray.random(24);
+
+                // Encrypt the file content
+                const encrypted = CryptoJS.TripleDES.encrypt(text, key);
+
+                // Convert the encrypted data to a blob
+                const blob = new Blob([encrypted.toString(CryptoJS.enc.Base64)], { type: file.type });
+
+                // Create a URL for the encrypted file
+                const url = URL.createObjectURL(blob);
+
+                // Display the encryption key
+                document.getElementById('encryptionKey').style.display = 'block';
+                document.getElementById('encryptionKey').children[0].textContent = key.toString(CryptoJS.enc.Hex);
+
+                // Provide the download link for the encrypted file
+                document.getElementById('encryptedFileLink').style.display = 'block';
+                document.getElementById('encryptedFileLink').href = url;
+                document.getElementById('encryptedFileLink').download = 'confidential_data.' + file.name.split('.').pop();
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</body>
+</html>

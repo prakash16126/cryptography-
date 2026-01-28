@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decrypt a File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        a {
+            display: block;
+            margin: 10px 0;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form input, form button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        form button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Decrypt a File</h1>
+    <form id="decryptForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" id="decryptFile">
+        <input type="text" name="key" id="decryptKey" placeholder="Enter Encryption Key">
+        <button type="button" onclick="decryptFile()">Decrypt</button>
+    </form>
+    <a id="decryptedFileLink" href="#" style="display:none;">Download Decrypted File</a>
+
+    <script>
+        function decryptFile() {
+            const file = document.getElementById('decryptFile').files[0];
+            const keyHex = document.getElementById('decryptKey').value;
+            if (!file || !keyHex) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Convert the ciphertext to a format that CryptoJS can handle
+                const ciphertext = event.target.result;
+                const key = CryptoJS.enc.Hex.parse(keyHex);
+
+                // Decrypt the file content
+                const decrypted = CryptoJS.TripleDES.decrypt(ciphertext, key);
+
+                // Convert the decrypted data to a blob
+                const blob = new Blob([decrypted.toString(CryptoJS.enc.Utf8)], { type: file.type });
+
+                // Create a URL for the decrypted file
+                const url = URL.createObjectURL(blob);
+
+                // Provide the download link for the decrypted file
+                document.getElementById('decryptedFileLink').style.display = 'block';
+                document.getElementById('decryptedFileLink').href = url;
+                document.getElementById('decryptedFileLink').download = 'message_file.' + file.name.split('.').pop();
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</body>
+</html>

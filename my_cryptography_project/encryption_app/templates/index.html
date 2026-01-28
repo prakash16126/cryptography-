@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cryptography Project</title>
+    <style>
+       @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #171717;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: linear-gradient(90deg, #2e2e2e 1px, transparent 1px), linear-gradient(#2e2e2e 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #app {
+            background-color: #656565db;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 1.5em;
+            color: #11ff00;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2bff2b;
+            color: #000000;
+            font-family:sans-serif;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            border: 1px solid #00ff0000;
+            transition: background-color ease;
+        }
+
+        a:hover {
+            background-color: #ff0000;
+        }
+
+        form {
+            margin: 20px 0;
+        }
+
+        form input, form button {
+            width: calc(100% - 20px);
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ffffff;
+            border-radius: 5px;
+        }
+
+        form input:focus, form button:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        form button {
+            background-color: #00ff26;
+            color: #000000;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #ff0000;
+        }
+
+        p {
+            color: red;
+        }
+
+        #dashboard a {
+            font-size: 1.2em;
+        }
+        .matrix {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .matrix canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Welcome to the Cryptography Project</h1>
+        <div id="auth">
+            <a href="#" onclick="showLogin()">Login</a>
+            <a href="#" onclick="showSignUp()">Sign Up</a>
+        </div>
+        <div id="dashboard" style="display:none;">
+            <h1>Welcome, <span id="username"></span></h1>
+            <a href="#" onclick="showEncrypt()">Encrypt a File</a>
+            <a href="#" onclick="showDecrypt()">Decrypt a File</a>
+            <div id="encrypt" style="display:none;">
+                <h1>Encrypt a File</h1>
+                <form id="encryptForm" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" id="encryptFile">
+                    <button type="button" onclick="enFile()">Encrypt</button>
+                </form>
+                <p id="encryptionKey" style="display:none;">Encryption Key: <span></span></p>
+                <a id="encryptedFileLink" href="#" style="display:none;">Download Encrypted File</a>
+            </div>
+            <div id="decrypt" style="display:none;">
+                <h1>Decrypt a File</h1>
+                <form id="decryptForm" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" id="decryptFile">
+                    <input type="text" name="key" id="decryptKey" placeholder="Enter Encryption Key">
+                    <button type="button" onclick="deFile()">Decrypt</button>
+                </form>
+                <a id="decryptedFileLink" href="#" style="display:none;">Download Decrypted File</a>
+            </div>
+        </div>
+        <div id="authForms" style="display:none;">
+            <div id="signup" style="display:none;">
+                <h1>Sign Up</h1>
+                <form id="signupForm" method="post">
+                    <input type="text" id="signupUsername" placeholder="Username">
+                    <input type="password" id="signupPassword" placeholder="Password">
+                    <button type="button" onclick="signUp()">Sign Up</button>
+                    <p id="signupError" style="display:none;"></p>
+                </form>
+            </div>
+            <div id="login" style="display:none;">
+                <h1>Login</h1>
+                <form id="loginForm" method="post">
+                    <input type="text" id="loginUsername" placeholder="Username">
+                    <input type="password" id="loginPassword" placeholder="Password">
+                    <button type="button" onclick="login()">Login</button>
+                    <p id="loginError" style="display:none;"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+    <script>
+        function showLogin() {
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('authForms').style.display = 'block';
+            document.getElementById('login').style.display = 'block';
+            document.getElementById('signup').style.display = 'none';
+        }
+
+        function showSignUp() {
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('authForms').style.display = 'block';
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('signup').style.display = 'block';
+        }
+
+        function showDashboard(username) {
+            document.getElementById('authForms').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('username').textContent = username;
+        }
+
+        function showEncrypt() {
+            document.getElementById('encrypt').style.display = 'block';
+            document.getElementById('decrypt').style.display = 'none';
+        }
+
+        function showDecrypt() {
+            document.getElementById('encrypt').style.display = 'none';
+            document.getElementById('decrypt').style.display = 'block';
+        }
+
+        function signUp() {
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (users[username]) {
+                document.getElementById('signupError').style.display = 'block';
+                document.getElementById('signupError').textContent = 'Username already exists';
+            } else {
+                users[username] = password;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Sign Up Successful. Please log in.');
+                showLogin();
+            }
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+            if (users[username] === password) {
+                localStorage.setItem('currentUser', username);
+                showDashboard(username);
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').textContent = 'Invalid credentials';
+            }
+        }
+
+        function enFile() {
+            const file = document.getElementById('encryptFile').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+
+                const key = CryptoJS.lib.WordArray.random(24);
+
+                const encrypted = CryptoJS.TripleDES.encrypt(text, key, {
+                    mode: CryptoJS.mode.ECB,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                const blob = new Blob([encrypted.toString()], { type: file.type });
+
+                const url = URL.createObjectURL(blob);
+
+                document.getElementById('encryptionKey').style.display = 'block';
+                document.getElementById('encryptionKey').children[0].textContent = key.toString();
+
+                document.getElementById('encryptedFileLink').style.display = 'block';
+                document.getElementById('encryptedFileLink').href = url;
+                document.getElementById('encryptedFileLink').download = 'confidential_data.' + file.name.split('.').pop();
+            };
+
+            reader.readAsText(file);
+        }
+
+        function deFile() {
+            const file = document.getElementById('decryptFile').files[0];
+            const keyHex = document.getElementById('decryptKey').value;
+            if (!file || !keyHex) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const encrypted = event.target.result;
+
+                const key = CryptoJS.enc.Hex.parse(keyHex);
+
+                const decrypted = CryptoJS.TripleDES.decrypt({
+                    ciphertext: CryptoJS.enc.Base64.parse(encrypted)
+                }, key, {
+                    mode: CryptoJS.mode.ECB,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+
+                const decryptedText = CryptoJS.enc.Utf8.stringify(decrypted);
+
+                const blob = new Blob([decryptedText], { type: file.type });
+
+                const url = URL.createObjectURL(blob);
+
+                document.getElementById('decryptedFileLink').style.display = 'block';
+                document.getElementById('decryptedFileLink').href = url;
+                document.getElementById('decryptedFileLink').download = 'decrypted_file.' + file.name.split('.').pop();
+            };
+            reader.readAsBinaryString(file);
+        }
+    </script>
+</body>
