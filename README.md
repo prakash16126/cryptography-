@@ -161,8 +161,9 @@ Web-Based Hybrid Cryptographic System/
 ### 1. Clone & Set Up Environment
 
 ```powershell
-# Navigate into repository folder
-cd "CRYPTO_10-main\CRYPTO_10-main"
+# Clone repository
+git clone https://github.com/prakash16126/cryptography-.git
+cd cryptography-
 
 # Create virtual environment (optional but recommended)
 python -m venv venv
@@ -191,7 +192,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 
 ```powershell
 # Navigate back to main repo folder
-cd "CRYPTO_10-main\CRYPTO_10-main"
+cd ..
 
 # Execute benchmark script
 python benchmark_hybrid_vs_aes.py
