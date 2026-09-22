@@ -161,7 +161,7 @@ Web-Based Hybrid Cryptographic System/
 ### 1. Clone & Set Up Environment
 
 ```powershell
-# Clone repository
+# Clone repository (or navigate to "Web-Based Hybrid Cryptographic System")
 git clone https://github.com/prakash16126/cryptography-.git
 cd cryptography-
 
@@ -176,7 +176,7 @@ pip install -r requirements.txt
 ### 2. Run Django Web Server
 
 ```powershell
-# Navigate to Django project folder
+# Navigate into the Django application folder (where manage.py is located)
 cd my_cryptography_project
 
 # Apply database migrations
@@ -191,7 +191,7 @@ Open your browser and navigate to: `http://127.0.0.1:8000/`
 ### 3. Run Performance Benchmarks & Generate Plots
 
 ```powershell
-# Navigate back to main repo folder
+# Return to main repository root (where benchmark_hybrid_vs_aes.py is located)
 cd ..
 
 # Execute benchmark script
